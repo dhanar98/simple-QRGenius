@@ -8,10 +8,14 @@ use BaconQrCode\Exception\WriterException;
 use BaconQrCode\Renderer\Color\Alpha;
 use BaconQrCode\Renderer\Color\ColorInterface;
 use BaconQrCode\Renderer\Color\Rgb;
+use BaconQrCode\Renderer\Eye\CrossEye;
 use BaconQrCode\Renderer\Eye\EyeInterface;
 use BaconQrCode\Renderer\Eye\ModuleEye;
 use BaconQrCode\Renderer\Eye\SimpleCircleEye;
 use BaconQrCode\Renderer\Eye\SquareEye;
+use BaconQrCode\Renderer\Eye\DiamondEye;
+use BaconQrCode\Renderer\Eye\HexagonEye;
+use BaconQrCode\Renderer\Eye\OctagonEye;
 use BaconQrCode\Renderer\Image\EpsImageBackEnd;
 use BaconQrCode\Renderer\Image\ImageBackEndInterface;
 use BaconQrCode\Renderer\Image\ImagickImageBackEnd;
@@ -334,7 +338,7 @@ class Generator
      */
     public function eye(string $style): self
     {
-        if (! in_array($style, ['square', 'circle'])) {
+        if (! in_array($style, ['square', 'circle','diamond','hexagon','octagon','crosssign'])) {
             throw new InvalidArgumentException("\$style must be square or circle. {$style} is not a valid eye style.");
         }
 
@@ -496,14 +500,21 @@ class Generator
      */
     public function getEye(): EyeInterface
     {
-        if ($this->eyeStyle === 'square') {
-            return SquareEye::instance();
+        $eyeStyles = [
+            'square'      => SquareEye::instance(),
+            'circle'      => SimpleCircleEye::instance(),
+            'diamond'     => DiamondEye::instance(),
+            'hexagon'     => HexagonEye::instance(),
+            'octagon'     => OctagonEye::instance(),
+            'crosssign'   => CrossEye::instance()
+        ];
+    
+        $eyeStyle = $this->eyeStyle;
+    
+        if (array_key_exists($eyeStyle, $eyeStyles)) {
+            return $eyeStyles[$eyeStyle];
         }
-
-        if ($this->eyeStyle === 'circle') {
-            return SimpleCircleEye::instance();
-        }
-
+    
         return new ModuleEye($this->getModule());
     }
 
